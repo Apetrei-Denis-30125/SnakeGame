@@ -47,22 +47,27 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void draw(Graphics g){
-        for(int i = 0; i < screen_hight / unit_size; i++){
-            g.drawLine(i*unit_size, 0, i*unit_size, screen_hight);
-            g.drawLine(0, i*unit_size, screen_width, i*unit_size);
-        }
-        g.setColor(Color.red);
-        g.fillOval(appleX, appleY, unit_size, unit_size);
+        if(running) {
 
-        for(int i = 0; i < bodyParts; i++){
-            if(i == 0){
-                g.setColor(Color.green);
-                g.fillRect(x[i], y[i], unit_size, unit_size);
+            for (int i = 0; i < screen_hight / unit_size; i++) {
+                g.drawLine(i * unit_size, 0, i * unit_size, screen_hight);
+                g.drawLine(0, i * unit_size, screen_width, i * unit_size);
             }
-            else{
-                g.setColor(new Color(45,180,0));
-                g.fillRect(x[i], y[i], unit_size, unit_size);
+            g.setColor(Color.red);
+            g.fillOval(appleX, appleY, unit_size, unit_size);
+
+            for (int i = 0; i < bodyParts; i++) {
+                if (i == 0) {
+                    g.setColor(Color.green);
+                    g.fillRect(x[i], y[i], unit_size, unit_size);
+                } else {
+                    g.setColor(new Color(45, 180, 0));
+                    g.fillRect(x[i], y[i], unit_size, unit_size);
+                }
             }
+        }
+        else {
+            gameOver(g);
         }
     }
     public void newApple(){
@@ -115,8 +120,12 @@ public class GamePanel extends JPanel implements ActionListener {
             running = false;
         if(running == false) timer.stop();
     }
-    public void gameOver(){
-
+    public void gameOver(Graphics g){
+        //Game Over Text
+        g.setColor(Color.red);
+        g.setFont(new Font("Impact", Font.BOLD, 75));
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        g.drawString("Game Over", (screen_width - metrics.stringWidth("Game Over"))/2, screen_hight / 2);
     }
 
     @Override
