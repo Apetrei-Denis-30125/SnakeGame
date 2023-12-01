@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    JButton reset = new JButton("Reset");
 
 
 
@@ -36,6 +37,12 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void startGame(){
         newApple();
+
+
+        if(!running){
+            applesEaten = 0;
+
+        }
         running = true;
         timer = new Timer(delay, this);
         timer.start();
@@ -49,22 +56,19 @@ public class GamePanel extends JPanel implements ActionListener {
     public void draw(Graphics g){
         if(running) {
 
-            for (int i = 0; i < screen_hight / unit_size; i++) {
+            /*for (int i = 0; i < screen_hight / unit_size; i++) {
                 g.drawLine(i * unit_size, 0, i * unit_size, screen_hight);
                 g.drawLine(0, i * unit_size, screen_width, i * unit_size);
-            }
+            }*/
             g.setColor(Color.red);
             g.fillOval(appleX, appleY, unit_size, unit_size);
 
-            for (int i = 0; i < bodyParts; i++) {
-                if (i == 0) {
-                    g.setColor(Color.green);
-                    g.fillRect(x[i], y[i], unit_size, unit_size);
-                } else {
-                    g.setColor(new Color(45, 180, 0));
-                    g.fillRect(x[i], y[i], unit_size, unit_size);
-                }
-            }
+            snakeInit(g);
+
+            g.setColor(Color.red);
+            g.setFont(new Font("Impact", Font.BOLD, 40));
+            FontMetrics metrics = getFontMetrics(g.getFont());
+            g.drawString("Score " + applesEaten, (screen_width - metrics.stringWidth("Score " + applesEaten))/2, g.getFont().getSize());
         }
         else {
             gameOver(g);
@@ -110,15 +114,23 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
         //check if the head touches the border
-        if(x[0] < 0)
-            running = false;
-        if(x[0] > screen_width)
-            running = false;
-        if(y[0] < 0)
-            running = false;
-        if(y[0] > screen_hight)
-            running = false;
-        if(running == false) timer.stop();
+        if(x[0] < 0) {
+            //running = false;
+            x[0] = screen_width;
+        }
+        if(x[0] > screen_width) {
+            //running = false;
+            x[0] = 0;
+        }
+        if(y[0] < 0) {
+            //running = false;
+            y[0] = screen_hight;
+        }
+        if(y[0] > screen_hight) {
+            //running = false;
+            y[0] = 0;
+        }
+        if(!running) timer.stop();
     }
     public void gameOver(Graphics g){
         //Game Over Text
@@ -126,6 +138,25 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Impact", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.drawString("Game Over", (screen_width - metrics.stringWidth("Game Over"))/2, screen_hight / 2);
+
+        g.drawString("Score " + applesEaten, (screen_width - metrics.stringWidth("Score " + applesEaten))/2, g.getFont().getSize());
+        this.add(reset);
+        reset.setVisible(true);
+
+        reset.setFont(new Font("Impact", Font.BOLD, 70));
+
+        metrics = getFontMetrics(reset.getFont());
+        reset.setSize(300, 125);
+        reset.setBackground(Color.black);
+        reset.setText("Reset");
+        reset.addActionListener(e -> reset(g));
+        reset.setForeground(Color.red);
+        reset.setBorderPainted(false);
+
+
+        reset.setLocation((screen_width - metrics.stringWidth("Reset"))/2 - 60, g.getFont().getSize()+300);
+
+
     }
 
     @Override
@@ -135,7 +166,37 @@ public class GamePanel extends JPanel implements ActionListener {
             checkApple();
             checkCollisions();
         }
+        else {
+            reset.remove(reset);
+            startGame();
+        }
         repaint();
+    }
+
+    private void reset(Graphics g){
+
+        snakeInit(g);
+
+        applesEaten = 0;
+        bodyParts = 6;
+        timer.stop();
+        this.remove(reset);
+        direction = 'R';
+        startGame();
+
+
+    }
+
+    private void snakeInit(Graphics g){
+        for (int i = 0; i < bodyParts; i++) {
+            if (i == 0) {
+                g.setColor(Color.green);
+                g.fillRect(x[i], y[i], unit_size, unit_size);
+            } else {
+                g.setColor(new Color(45, 180, 0));
+                g.fillRect(x[i], y[i], unit_size, unit_size);
+            }
+        }
     }
 
     public class MyKeyAdapter extends KeyAdapter{
